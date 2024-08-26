@@ -10,17 +10,17 @@ const userSchema = new mongoose.Schema({
   userType: { type: String, required: true },
 
   // Like the user's first name should be a String and it is a required field.
-  firstName: { type: String, default: "default" },
-  lastName: { type: String, default: "default" },
-  licenseNumber: { type: String, default: "default" },
-  age: { type: Number, default: 0 },
+  firstName: { type: String },
+  lastName: { type: String },
+  licenseNumber: { type: String },
+  age: { type: Number },
 
   // Below is the nested object to store details about the user's car.
   carDetails: {
-    make: { type: String, default: "default" },
-    model: { type: String, default: "default" },
-    year: { type: Number, default: 0 },
-    plateNumber: { type: String, default: "default" },
+    make: { type: String },
+    model: { type: String },
+    year: { type: Number },
+    plateNumber: { type: String },
   },
 
   // This below is the reference to the appointment document, using ObjectId to link to the appointment.js model in the models folder.
