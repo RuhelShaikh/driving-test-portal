@@ -1,0 +1,144 @@
+<!-- This below line will include (EJS Template) all the HTML as well as the BOOTSTRAP in this page. -->
+<%- include('../layout') %>
+
+<!-- If else block to check if the message is available before the page gets rendered. -->
+<% if (typeof message !== 'undefined' && message) { %>
+  <div class="alert alert-success" role="alert">
+    <%= message %>
+  </div>
+<% } %>
+
+<!-- This is the UI for the Examiner page. -->
+<section class="py-5">
+  <div class="container px-5">
+    <div class="row">
+      <div class="col-md-12 bg-light rounded-3 py-5 px-4 px-md-5 mb-5">
+        <div class="text-center mb-5">
+          <div class="feature bg-primary bg-gradient text-white rounded-3 mb-3"><i class="bi bi-person-square"></i></div>
+          <h1 class="fw-bolder">Examiner View</h1>
+          <p class="lead fw-normal text-muted mb-0">Add comments and pass/fail users</p>
+        </div>
+        <div class="row gx-5 justify-content-center">
+          <div class="col-lg-8 col-xl-6">
+            <form method="get" action="/examiner">
+              <div class="form-group">
+                <label for="testType">Filter by Test Type:</label>
+                <select id="testType" name="testType" class="form-control">
+                  <!-- This is the filter a sper the instructions to display users according to their test type. -->
+                  <option value="" <%= (typeof testType !== 'undefined' && testType === '') ? 'selected' : '' %>>All</option>
+                  <option value="G2" <%= (typeof testType !== 'undefined' && testType === 'G2') ? 'selected' : '' %>>Driving Licence</option>
+                  <!-- <option value="G" <%= (typeof testType !== 'undefined' && testType === 'G') ? 'selected' : '' %>>G</option> -->
+                </select>
+              </div>
+              <button type="submit" class="btn btn-primary mt-3">Filter</button>
+            </form>
+
+            <form id="examinerForm" method="post" enctype="application/x-www-form-urlencoded" action="/resultData">
+              <table class="table">
+                <thead class="bg-primary text-white">
+                  <tr>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Test Type</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% users.forEach(user => { %>                    
+                    <!-- This below line will iterate through each user and create a table row for their details -->
+                  <tr data-user-id="<%= user._id %>">
+                    <td><%= user.firstName %></td>
+                    <td><%= user.lastName %></td>
+                    <td><%= user.testType === 'G2' ? 'Driving Test' : user.testType %></td>
+                    <!-- This is the button to view the driver details. -->
+                    <td><button type="button" class="btn btn-success btnedit">View Driver</button></td>
+                  </tr>
+                  <% }); %>
+                </tbody>
+              </table>
+              <div class="row">
+                <div class="col-md-6 col-sm-12" id="user-details"></div>
+                <div class="invisible col-md-6 col-sm-12 custom-form-container" id="examinerform">
+                  <div class="form-floating mb-3">
+                    <textarea class="form-control" name="comment" id="comment" placeholder="Enter Comments..." rows="6"></textarea>
+                    <label for="comment">Comment</label>
+                  </div>
+                  <div class="form-check custom-radio">
+                    <input class="form-check-input" id="passRadio" type="radio" name="passed" value="true" />
+                    <label class="form-check-label" for="passRadio">Pass</label>
+                  </div>
+                  <div class="form-check custom-radio mb-3">
+                    <input class="form-check-input" id="failRadio" type="radio" name="passed" value="false" />
+                    <label class="form-check-label" for="failRadio">Fail</label>
+                  </div>
+                  <div class="d-flex custom-buttons">
+                    <button class="btn btn-primary btn-lg me-2" id="submitButton" type="submit">Submit</button>
+                    <button type="button" class="btn btn-danger btn-lg" id="cancelButton">Cancel</button>
+                  </div>
+                </div>
+                <div id="resultMessage" class="alert alert-info invisible mt-3" role="alert">
+                  <!-- It will display this once the examiner has passed or failed the user. -->
+                  Result has been declared and no further changes are allowed.
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<script>
+  $(document).ready(function () {
+      $('.btnedit').click(function () {
+          const userId = $(this).closest('tr').data('user-id');
+          $.ajax({
+              url: `/users/${userId}`,
+              method: 'GET',
+              success: function (userData) {
+                  const carDetails = userData.carDetails || {
+                      make: "Not Available",
+                      model: "Not Available",
+                      year: "Not Available",
+                      plateNumber: "Not Available"
+                  };
+                  $('#user-details').html(`
+                    <h2>User Details</h2>
+                    <input type="hidden" name="userId" value='${userData._id}'>
+                    <input type="hidden" name="comment1" id="comment1" value='${userData.Comments}'>
+                    <p>First Name: ${userData.firstName}</p>
+                    <p>Last Name: ${userData.lastName}</p>
+                    <p>Age: ${userData.age}</p>
+                    <p>Car Make: ${carDetails.make}</p>
+                    <p>Car Model: ${carDetails.model}</p>
+                    <p>Car Year: ${carDetails.year}</p>
+                    <p>Car Plate No.: ${carDetails.plateNumber}</p>
+                  `);
+                  $('#comment').val($('#comment1').val());
+
+                  if (userData.isPassed !== undefined) {
+                      if (userData.isPassed) {
+                          $('#passRadio').prop('checked', true);
+                      } else {
+                          $('#failRadio').prop('checked', true);
+                      }
+                      $('#examinerform').addClass('invisible');
+                      $('#resultMessage').removeClass('invisible').addClass('visible');
+                  } else {
+                      $('#examinerform').removeClass('invisible').addClass('visible');
+                      $('#resultMessage').addClass('invisible');
+                  }
+              },
+              error: function () {
+                  console.error('Error fetching user details');
+              }
+          });
+      });
+
+      $('#cancelButton').click(function () {
+          $('#examinerform').removeClass('visible').addClass('invisible');
+      });
+  });
+</script>
