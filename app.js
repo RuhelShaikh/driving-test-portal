@@ -37,7 +37,7 @@ app.use(
   session({
     secret: process.env.SESSION_SECRET,
     resave: false,
-    saveUninitialized: false,
+    saveUninitialized: true,
     store: MongoStore.create({
       mongoUrl: process.env.MONGODB_URI,
       collectionName: "sessions",
@@ -45,7 +45,7 @@ app.use(
     cookie: {
       maxAge: 1000 * 60 * 60 * 24, // 1 day
       secure: process.env.NODE_ENV === "production", // Use secure cookies in production
-      sameSite: "lax", // Protect against CSRF
+      sameSite: "none", // Protect against CSRF
     },
   })
 );
