@@ -44,8 +44,6 @@ app.use(
     }),
     cookie: {
       maxAge: 1000 * 60 * 60 * 24, // 1 day
-      secure: process.env.NODE_ENV === "production", // Use secure cookies
-      sameSite: "none", // Allow cookies to be sent with requests from any site
     },
   })
 );
