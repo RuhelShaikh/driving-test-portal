@@ -2,19 +2,16 @@
 const User = require("../models/user");
 
 // Rendering the signup page.
-const renderSignup = (req, res) => 
-{
+const renderSignup = (req, res) => {
   res.render("pages/signup", { title: "Sign Up" });
 };
 
 // Handling the submission for the signup form.
-const signup = async (req, res) =>
-{
+const signup = async (req, res) => {
   const { username, password, confirmPassword, userType } = req.body;
 
   // This below if else block will check if the passwords match or not.
-  if (password !== confirmPassword) 
-  {
+  if (password !== confirmPassword) {
     return res.send(`
         <script>
           alert('Passwords do not match');
@@ -24,11 +21,9 @@ const signup = async (req, res) =>
   }
 
   // This will check from the DB (User) if the same username in the DB exists or not.
-  try 
-  {
+  try {
     const user = await User.findOne({ username });
-    if (user) 
-      {
+    if (user) {
       return res.send(`
           <script>
             alert('Username already exists. Please login or choose a different username.');
@@ -38,20 +33,10 @@ const signup = async (req, res) =>
     }
 
     // Creating new User inside the database.
-    const newUser = new User(
-    {
+    const newUser = new User({
       username,
       password,
       userType,
-      firstName: "default",
-      lastName: "default",
-      licenseNumber: username + new Date().getTime(),
-      carDetails: {
-        make: "default",
-        model: "default",
-        year: 0,
-        plateNumber: "default",
-      },
     });
 
     // Giving an alert that user is saved.
@@ -64,9 +49,7 @@ const signup = async (req, res) =>
       `);
 
     // If there is an error saving data then this catch block will give an error with a message.
-  } 
-  catch (err) 
-  {
+  } catch (err) {
     console.log("Error saving user data:", err);
     res.status(500).send(`
         <script>
@@ -78,8 +61,7 @@ const signup = async (req, res) =>
 };
 
 // Exporting the whole controller and is used in the routes folder.
-module.exports = 
-{
+module.exports = {
   renderSignup,
   signup,
 };
